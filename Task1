@@ -1,0 +1,74 @@
+---
+- name: Task1
+  hosts: all
+  user: ec2-user
+  become: yes 
+  become_method: sudo 
+  tasks:
+
+  - name: Install Utility software
+    apt: name={{item}} state=latest update_cache=yes
+    when: 
+    - ansible_facts['distribution'] == "Ubuntu"
+    with_items:
+      - software-properties-common
+      - gnupg-curl
+      - apt-transport-https
+
+  - name: Add an Apt signing key (from marinadb official site)
+    when: 
+    - ansible_facts['distribution'] == "Ubuntu"
+    ansible.builtin.apt_key:
+      url: https://mariadb.org/mariadb_release_signing_key.asc
+      state: present
+
+  - name: Add MarinaDB repository (from official site)
+    when: 
+    - ansible_facts['distribution'] == "Ubuntu"
+    ansible.builtin.apt_repository:
+      repo: deb [arch=amd64,arm64,i386,ppc64el] https://mirror.its.dal.ca/mariadb/repo/10.5/ubuntu xenial main
+      state: present
+
+  - name: Install MarinaDB Server
+    when: 
+    - ansible_facts['distribution'] == "Ubuntu"
+    apt:
+      name: mariadb-server
+      state: present
+    notify: Restart MariaDB
+
+
+  - name: Add users to Amazon machines
+    when: 
+    - ansible_facts['distribution'] == "Amazon"
+    ansible.builtin.user:
+      name: "{{ item }}"
+      state: present
+      generate_ssh_key: yes
+      shell: /bin/bash
+    with_items:
+    - bob
+    - ben
+    - lisa
+    - katty
+
+  - name: Download csv file
+    when: 
+    - ansible_facts['distribution'] == "Amazon"
+    get_url:
+      url: https://people.sc.fsu.edu/~jburkardt/data/csv/addresses.csv
+      dest: "{{ item }}"
+      mode: '0440'
+    with_items:
+    - /home/bob/
+    - /home/ben/
+    - /home/lisa/
+    - /home/katty/
+
+  handlers:
+  - name: Restart MariaDB
+    when: 
+    - ansible_facts['distribution'] == "Ubuntu"
+    service:
+      name: mysql
+      state: restarted
