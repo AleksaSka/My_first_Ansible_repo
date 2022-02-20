@@ -38,7 +38,7 @@
     notify: Restart MariaDB
 
 
-  - name: Add users to Amazon machines
+  - name: Add users with ssh key pair to Amazon machines
     when: 
     - ansible_facts['distribution'] == "Amazon"
     ansible.builtin.user:
