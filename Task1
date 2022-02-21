@@ -29,7 +29,7 @@
       repo: deb [arch=amd64,arm64,i386,ppc64el] https://mirror.its.dal.ca/mariadb/repo/10.5/ubuntu xenial main
       state: present
 
-  - name: Install MarinaDB Server
+  - name: Install MariaDB Server
     when: 
     - ansible_facts['distribution'] == "Ubuntu"
     apt:
