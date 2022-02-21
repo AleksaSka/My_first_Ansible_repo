@@ -70,5 +70,5 @@
     when: 
     - ansible_facts['distribution'] == "Ubuntu"
     service:
-      name: mysql
+      name: mariadb
       state: restarted
